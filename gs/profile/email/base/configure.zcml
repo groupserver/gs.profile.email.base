@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configure 
+  xmlns="http://namespaces.zope.org/zope"
+  xmlns:browser="http://namespaces.zope.org/browser"
+  xmlns:five="http://namespaces.zope.org/five"
+  i18n_domain="groupserver">
+
+  <!-- Auditor -->
+  <utility
+    name="gs.profile.email.base"
+    factory=".audit.AuditEventFactory"
+    provides="zope.component.interfaces.IFactory"
+    permission="zope.Public" 
+  />
+  
+  <!-- Adapters -->
+  <interface interface=".interfaces.IGSEmailUser" />
+  <adapter
+    for="Products.CustomUser.interfaces.IGSUserInfo"
+    factory=".emailuser.EmailUser"
+    provides=".interfaces.IGSEmailUser"
+    permission="zope2.Public"
+  />
+  
+  <!-- Named Vocabularies -->
+  <utility
+    name="EmailAddressesForUser"
+    provides="zope.schema.interfaces.IVocabularyFactory"
+    component=".vocabularies.EmailAddressesForUser"
+  />
+  <utility
+    name="EmailAddressesForLoggedInUser"
+    provides="zope.schema.interfaces.IVocabularyFactory"
+    component=".vocabularies.EmailAddressesForLoggedInUser"
+  />
+    
+</configure>
+
