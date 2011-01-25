@@ -3,10 +3,9 @@ import sqlalchemy as sa
 
 class UserEmailQuery(object):
 
-    def __init__(self, context, da):
-        self.context = context
-        self.userId = context.getUserName()
-
+    def __init__(self, user, da):
+        self.context = user
+        self.userId = user.getId()
         self.userEmailTable = da.createTable('user_email')
         self.emailVerificationTable = da.createTable('email_verification')
 
@@ -48,3 +47,9 @@ class UserEmailQuery(object):
         assert type(retval) == bool
         return retval
     
+    def update_delivery(self, address, isPreferred):
+        uet = self.userEmailTable
+        u = uet.update(sa.and_(uet.c.user_id==self.userId,
+                               sa.func.lower(uet.c.email) == address.lower()))
+        u.execute(is_preferred=isPreferred)
+        

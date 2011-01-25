@@ -5,6 +5,7 @@ from zope.interface.common.mapping import IEnumerableMapping
 from zope.schema.interfaces import IVocabulary, \
   IVocabularyTokenized, ITitledTokenizedTerm
 from zope.schema.vocabulary import SimpleTerm 
+from emailuser import EmailUser
 
 class EmailAddressesForUser(object):
     implements(IVocabulary, IVocabularyTokenized)

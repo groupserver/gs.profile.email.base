@@ -7,7 +7,7 @@ class IGSEmailUser(Interface):
         setting them to and from 'default' for delivery.
     """
     
-    def add_address(address):
+    def add_address(address, isPreferred):
         """ Add the given email address to the profile.
         """
         

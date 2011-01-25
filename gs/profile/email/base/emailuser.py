@@ -1,18 +1,30 @@
 # coding=utf-8
+import rfc822
 from zope.interface import implements
-from zope.component import adapts
-from Products.CustomUserFolder.interfaces import IGSUserInfo
+from zope.component import adapts, createObject
+from zope.schema import ValidationError
+from Products.CustomUserFolder.interfaces import ICustomUser, IGSUserInfo
 from queries import UserEmailQuery
 from interfaces import IGSEmailUser
-from audit import Auditor
+from audit import Auditor, ADD_ADDRESS, REMOVE_ADDRESS
+from audit import DELIVERY_ON, DELIVERY_OFF
 
 class EmailUser(object):
     implements(IGSEmailUser)
     adapts(IGSUserInfo)
     
-    def __init__(self, userInfo):
+    def __init__(self, context, userInfo):
+        self.context = context
         self.userInfo = userInfo
         self.__auditor = self.__siteInfo = None
+        self.__query = None
+    
+    @property
+    def query(self):
+        if self.__query == None:
+            self.__query = UserEmailQuery(self.userInfo.user, 
+                            self.context.zsqlalchemy)
+        return self.__query
     
     @property
     def auditor(self):
@@ -34,8 +46,7 @@ class EmailUser(object):
           '%s (%s) already has the address <%s>' % \
            (self.userInfo.name, self.userId, address)
         address = self._validateAndNormalizeEmail(address)
-        uq = UserEmailQuery(self.userInfo.user, self.zsqlalchemy)        
-        uq.add_address(address, isPreferred)
+        self.query.add_address(address, isPreferred)
         self.auditor.info(ADD_ADDRESS, self.userInfo, address)
         
     def remove_address(self, address):
@@ -45,8 +56,7 @@ class EmailUser(object):
           '%s (%s) does not have the address <%s>' % \
            (self.userInfo.name, self.userId, address)
         address = self._validateAndNormalizeEmail(address)
-        uq = UserEmailQuery(self.userInfo.user, self.zsqlalchemy)
-        uq.remove_address(address)
+        self.query.remove_address(address)
         self.auditor.info(REMOVE_ADDRESS, self.userInfo, address)
         
     def is_address_verified(self, address):
@@ -55,8 +65,7 @@ class EmailUser(object):
         assert address in self.get_addresses(), \
           '%s (%s) does not have the address <%s>' % \
            (self.userInfo.name, self.userId, address)
-        uq = UserEmailQuery(self.userInfo.user, self.zsqlalchemy)
-        return uq.is_address_verified(address)
+        return self.query.is_address_verified(address)
     
     def get_addresses(self):
         """ Returns a list of all the user's email addresses.
@@ -65,32 +74,42 @@ class EmailUser(object):
         # --=mpj17=-- Note that registration requires this to be able
         #   to return all the user's email addresses, not just the 
         #   verified addresses.
-        uq = UserQuery(self, self.zsqlalchemy)
-        return uq.get_addresses(preferredOnly=False, verifiedOnly=False)
+        return self.query.get_addresses(preferredOnly=False, verifiedOnly=False)
 
     def get_verified_addresses(self):
         """Get all the user's verified email addresses.
         """
-        uq = UserEmailQuery(self.userInfo.user, self.zsqlalchemy)
-        return uq.get_addresses(preferredOnly=False, verifiedOnly=True)    
+        return self.query.get_addresses(preferredOnly=False, verifiedOnly=True)    
         
     def get_delivery_addresses(self):
         """ Get all the user's default delivery addresses.
         """
-        uq = UserEmailQuery(self.userInfo.user, self.zsqlalchemy)
-        return uq.get_addresses(preferredOnly=True)
+        return self.query.get_addresses(preferredOnly=True)
     
     def set_delivery(self, address):
         """ Set the given email address to be a default
             delivery address.
         """
+        address = self._validateAndNormalizeEmail(address)
+        allAddresses = self.get_addresses()
+    
+        # If we don't have the email address in the database yet, 
+        #  add it and set it for preferred delivery
+        if address not in allAddresses:
+            self.add_address(address, isPreferred=True)
+        # Otherwise, just set it for preferred delivery
+        else:
+            self.query.update_delivery(address, isPreferred=True)
+        self.auditor.info(DELIVERY_ON, self.userInfo, address)
         
     def drop_delivery(self, address):
         """ Set the given address to no longer be a default
             delivery address.
         """
+        address = self._validateAndNormalizeEmail(address)
+        self.query.update_delivery(address, isPreferred=False)
+        self.auditor.info(DELIVERY_OFF, self.userInfo, address)        
 
-    security.declarePrivate('_validateAndNormalizeEmail')
     def _validateAndNormalizeEmail(self, address):
         """ Validates and normalizes an email address.
         """
@@ -110,3 +129,23 @@ class EmailUser(object):
         if not address:
             raise ValidationError('No email address given')
         return address
+
+class EmailUserFromEmailAddressFactory(object):
+    """ Create an EmailUser from an email address.
+    """
+    def __call__(self, context, address):
+        retval = None
+        aclUsers = context.site_root().acl_users
+        user = aclUsers.get_userByEmail(address)
+        if user:
+            userInfo = IGSUserInfo(user)
+            retval = EmailUser(context, userInfo) 
+        return retval
+        
+class EmailUserFromUser(EmailUser):
+    implements( IGSEmailUser )
+    adapts( ICustomUser )
+    def __init__(self, user):
+        userInfo = IGSUserInfo(user)
+        EmailUser.__init__(self, user, userInfo)
+        

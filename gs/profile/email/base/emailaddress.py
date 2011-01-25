@@ -1,9 +1,21 @@
 # coding=utf-8
 import re
-from zope.schema import ASCIILine
-from Products.GSProfile.utils import get_acl_users_for_context
+from zope.schema import ASCIILine, ValidationError
 
-EMAIL_RE = r'^[a-zA-Z0-9\._%-]+@([a-zA-Z0-9\-]+\.)+[a-zA-Z]{2,4}$'
+__context_acl_users = {}
+
+def __get_acl_users_for_context(context):
+    assert context
+    if context not in __context_acl_users:
+        acl_users = context.site_root().acl_users
+        __context_acl_users[context] = acl_users
+    else:
+        acl_users = __context_acl_users[context]
+    assert acl_users
+    return acl_users
+get_acl_users_for_context = __get_acl_users_for_context
+
+EMAIL_RE = r'^[a-zA-Z0-9\._%+-]+@([a-zA-Z0-9\-]+\.)+[a-zA-Z]{2,4}$'
 check_email = re.compile(EMAIL_RE).match
 
 BANNED_DOMAINS = ['dodgit.com', 'enterto.com', 'myspamless.com',
@@ -12,6 +24,14 @@ BANNED_DOMAINS = ['dodgit.com', 'enterto.com', 'myspamless.com',
   'shieldedmail.net', 'sneakemail.com', 'spamgourmet.com', 'spambox.us',
   'spaml.com', 'temporaryinbox.com', 'mx0.wwwnew.eu', 'bodhi.lawlita.com',
   'mail.htl22.at', 'zoemail.net', 'despam.it']
+
+def address_exists(context, emailAddress):
+    acl_users = get_acl_users_for_context(context)
+    user = acl_users.get_userIdByEmail(emailAddress)
+    retval = user != None
+    
+    assert type(retval) == bool
+    return retval
 
 def disposable_address(e):
     userAddress = e.lower()
@@ -52,14 +72,6 @@ class EmailAddress(ASCIILine):
         #   scuttle any efforts to do this properly\ldots
         # AM: We've since gone in the email_blacklist direction.
         return True
-
-def address_exists(context, emailAddress):
-    acl_users = get_acl_users_for_context(context)
-    user = acl_users.get_userIdByEmail(emailAddress)
-    retval = user != None
-    
-    assert type(retval) == bool
-    return retval
 
 class EmailAddressExists(ValidationError):
     """Email Address already exists on the system"""

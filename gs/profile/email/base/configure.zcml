@@ -5,18 +5,24 @@
   xmlns:five="http://namespaces.zope.org/five"
   i18n_domain="groupserver">
 
-  <!-- Auditor -->
+  <!-- Factories -->
   <utility
     name="gs.profile.email.base"
     factory=".audit.AuditEventFactory"
     provides="zope.component.interfaces.IFactory"
     permission="zope.Public" 
   />
+  <utility
+    name="groupserver.EmailUserFromEmailAddress"
+    factory=".emailuser.EmailUserFromEmailAddressFactory"
+    provides="zope.component.interfaces.IFactory"
+    permission="zope.Public"
+  />
   
   <!-- Adapters -->
   <interface interface=".interfaces.IGSEmailUser" />
   <adapter
-    for="Products.CustomUser.interfaces.IGSUserInfo"
+    for="Products.CustomUserFolder.interfaces.IGSUserInfo"
     factory=".emailuser.EmailUser"
     provides=".interfaces.IGSEmailUser"
     permission="zope2.Public"
