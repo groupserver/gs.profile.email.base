@@ -8,7 +8,6 @@ class UserEmailQuery(object):
         self.userId = context.getUserName()
 
         self.userEmailTable = da.createTable('user_email')
-        self.emailVerificationTable = da.createTable('email_verification')
 
     def add_address(self, address, isPreferred=False):
         uet = self.userEmailTable
@@ -47,4 +46,4 @@ class UserEmailQuery(object):
             retval = r.fetchone()['verified_date'] != None
         assert type(retval) == bool
         return retval
-    
+
