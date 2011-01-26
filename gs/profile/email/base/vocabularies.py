@@ -12,16 +12,17 @@ class EmailAddressesForUser(object):
     __used_for__ = IEnumerableMapping
 
     def __init__(self, userInfo):
-        self.emailUser = EmailUser(userInfo)
-        self.__addresses = None
+        self.context = userInfo.user
+        self.emailUser = EmailUser(userInfo.user, userInfo)
+        self._addresses = None
 
     @property
     def addresses(self):
-        if self.__addresses == None:
-            self.__addresses = \
+        if self._addresses == None:
+            self._addresses = \
               self.emailUser.get_verified_addresses()
-        assert type(self.__addresses) == list
-        return self.__addresses
+        assert type(self._addresses) == list
+        return self._addresses
         
     def __iter__(self):
         """See zope.schema.interfaces.IIterableVocabulary"""
@@ -67,6 +68,8 @@ class EmailAddressesForLoggedInUser(EmailAddressesForUser):
         that we always want the addresses of the user that is logged in.
     """
     def __init__(self, context):
+        self.context = context
         userInfo = createObject('groupserver.LoggedInUser', context)
-        self.emailUser = EmailUser(userInfo)
-        self.__addresses = None
+        self.emailUser = EmailUser(context, userInfo)
+        self._addresses = None
+        
