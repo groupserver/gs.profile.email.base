@@ -1,6 +1,6 @@
 # coding=utf-8
 import rfc822
-from zope.interface import implements
+from zope.interface import implements, Interface
 from zope.component import adapts, createObject
 from zope.schema import ValidationError
 from Products.CustomUserFolder.interfaces import ICustomUser, IGSUserInfo
@@ -11,7 +11,7 @@ from audit import DELIVERY_ON, DELIVERY_OFF
 
 class EmailUser(object):
     implements(IGSEmailUser)
-    adapts(IGSUserInfo)
+    adapts(Interface, IGSUserInfo)
     
     def __init__(self, context, userInfo):
         self.context = context

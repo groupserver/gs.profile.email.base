@@ -22,7 +22,6 @@
   <!-- Adapters -->
   <interface interface=".interfaces.IGSEmailUser" />
   <adapter
-    for="Products.CustomUserFolder.interfaces.IGSUserInfo"
     factory=".emailuser.EmailUser"
     provides=".interfaces.IGSEmailUser"
     permission="zope2.Public"
