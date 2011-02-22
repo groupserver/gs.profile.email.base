@@ -41,7 +41,7 @@
   
   <!-- JavaScript -->
   <browser:resource name="check_email-20110222.js" 
-    file="browser/javascript/check_email.js"
+    file="javascript/check_email.js"
     permission="zope2.Public" />
     
 </configure>
