@@ -40,8 +40,6 @@ class EmailUser(object):
         return self.__siteInfo
     
     def add_address(self, address, isPreferred=False):
-        """ Add the given email address to the user's profile.
-        """
         assert address not in self.get_addresses(), \
           '%s (%s) already has the address <%s>' % \
            (self.userInfo.name, self.userId, address)
@@ -50,8 +48,6 @@ class EmailUser(object):
         self.auditor.info(ADD_ADDRESS, self.userInfo, address)
         
     def remove_address(self, address):
-        """ Remove the given email address from the profile.
-        """
         assert address in self.get_addresses(), \
           '%s (%s) does not have the address <%s>' % \
            (self.userInfo.name, self.userId, address)
@@ -60,36 +56,24 @@ class EmailUser(object):
         self.auditor.info(REMOVE_ADDRESS, self.userInfo, address)
         
     def is_address_verified(self, address):
-        """ Check to see if the given address is verified.
-        """
         assert address in self.get_addresses(), \
           '%s (%s) does not have the address <%s>' % \
            (self.userInfo.name, self.userId, address)
         return self.query.is_address_verified(address)
     
     def get_addresses(self):
-        """ Returns a list of all the user's email addresses.
-            A helper method to purify the list of addresses.
-        """
         # --=mpj17=-- Note that registration requires this to be able
         #   to return all the user's email addresses, not just the 
         #   verified addresses.
         return self.query.get_addresses(preferredOnly=False, verifiedOnly=False)
 
     def get_verified_addresses(self):
-        """Get all the user's verified email addresses.
-        """
         return self.query.get_addresses(preferredOnly=False, verifiedOnly=True)    
         
     def get_delivery_addresses(self):
-        """ Get all the user's default delivery addresses.
-        """
         return self.query.get_addresses(preferredOnly=True)
     
     def set_delivery(self, address):
-        """ Set the given email address to be a default
-            delivery address.
-        """
         address = self._validateAndNormalizeEmail(address)
         allAddresses = self.get_addresses()
     
@@ -103,9 +87,6 @@ class EmailUser(object):
         self.auditor.info(DELIVERY_ON, self.userInfo, address)
         
     def drop_delivery(self, address):
-        """ Set the given address to no longer be a default
-            delivery address.
-        """
         address = self._validateAndNormalizeEmail(address)
         self.query.update_delivery(address, isPreferred=False)
         self.auditor.info(DELIVERY_OFF, self.userInfo, address)        
