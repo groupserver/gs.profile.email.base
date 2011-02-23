@@ -69,6 +69,9 @@ class EmailUser(object):
 
     def get_verified_addresses(self):
         return self.query.get_addresses(preferredOnly=False, verifiedOnly=True)    
+
+    def get_unverified_addresses(self):
+        return self.query.get_unverified_addresses()
         
     def get_delivery_addresses(self):
         return self.query.get_addresses(preferredOnly=True)

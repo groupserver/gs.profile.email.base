@@ -27,6 +27,10 @@ class IGSEmailUser(Interface):
     def get_verified_addresses():
         """Get all the user's verified email addresses.
         """
+    
+    def get_unverified_addresses():
+        """Get all the user's unverified email addresses.
+        """
         
     def get_delivery_addresses():
         """ Get all the user's default delivery addresses.

@@ -36,6 +36,17 @@ class UserEmailQuery(object):
             addresses.append(row['email'])
         return addresses
     
+    def get_unverified_addresses(self):
+        uet = self.userEmailTable
+        s = sa.select([uet.c.email], uet.c.user_id == self.userId)
+        s.append_whereclause(uet.c.verified_date == None)
+        r = s.execute()
+        
+        addresses = []
+        for row in r.fetchall():
+            addresses.append(row['email'])
+        return addresses
+    
     def is_address_verified(self, address):
         uet = self.userEmailTable
         s = uet.select(sa.func.lower(uet.c.email) == address.lower())
