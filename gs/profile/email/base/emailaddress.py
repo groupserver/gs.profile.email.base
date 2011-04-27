@@ -1,5 +1,7 @@
 # coding=utf-8
 import re
+from operator import or_ 
+from email.utils import parseaddr
 from zope.schema import ASCIILine, ValidationError
 
 __context_acl_users = {}
@@ -15,8 +17,11 @@ def __get_acl_users_for_context(context):
     return acl_users
 get_acl_users_for_context = __get_acl_users_for_context
 
-EMAIL_RE = r'^[a-zA-Z0-9\._%+-]+@([a-zA-Z0-9\-]+\.)+[a-zA-Z]{2,4}$'
-check_email = re.compile(EMAIL_RE).match
+EMAIL_RE = r'\b[a-z0-9\._%+-]+@([a-z0-9\-]+\.)+[a-z]{2,4}\b'
+emailRE = re.compile(EMAIL_RE, re.IGNORECASE)
+def check_email(addr):
+    r = parseaddr(addr)
+    return emailRE.match(r[1]) != None
 
 BANNED_DOMAINS = ['dodgit.com', 'enterto.com', 'myspamless.com',
   'e4ward.com', 'guerrillamail.biz', 'jetable.net', 'mailinator.com',
@@ -25,18 +30,18 @@ BANNED_DOMAINS = ['dodgit.com', 'enterto.com', 'myspamless.com',
   'spaml.com', 'temporaryinbox.com', 'mx0.wwwnew.eu', 'bodhi.lawlita.com',
   'mail.htl22.at', 'zoemail.net', 'despam.it']
 
-def address_exists(context, emailAddress):
+def address_exists(context, addr):
+    n, e = parseaddr(addr)
     acl_users = get_acl_users_for_context(context)
-    user = acl_users.get_userIdByEmail(emailAddress)
+    user = acl_users.get_userIdByEmail(e)
     retval = user != None
-    
     assert type(retval) == bool
     return retval
 
-def disposable_address(e):
+def disposable_address(addr):
+    n, e = parseaddr(addr)
     userAddress = e.lower()
-    retval = reduce(lambda a, b: a or b,
-                    [d in userAddress for d in BANNED_DOMAINS], False)
+    retval = reduce(or_, [d in userAddress for d in BANNED_DOMAINS], False)
     assert type(retval) == bool
     return retval
 
