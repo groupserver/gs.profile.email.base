@@ -5,9 +5,10 @@ from zope.interface.common.mapping import IEnumerableMapping
 from zope.schema.interfaces import IVocabulary, \
   IVocabularyTokenized, ITitledTokenizedTerm
 from zope.schema.vocabulary import SimpleTerm 
+from Products.CustomUserFolder.interfaces import IGSUserInfo
 from emailuser import EmailUser
 
-class EmailAddressesForUser(object):
+class EmailAddressesForUserInfo(object):
     implements(IVocabulary, IVocabularyTokenized)
     __used_for__ = IEnumerableMapping
 
@@ -63,7 +64,7 @@ class EmailAddressesForUser(object):
                 return retval
         raise LookupError, token
 
-class EmailAddressesForLoggedInUser(EmailAddressesForUser):
+class EmailAddressesForLoggedInUser(EmailAddressesForUserInfo):
     """ Similar to EmailAddressesForUser, but makes the assumption
         that we always want the addresses of the user that is logged in.
     """
@@ -72,4 +73,11 @@ class EmailAddressesForLoggedInUser(EmailAddressesForUser):
         userInfo = createObject('groupserver.LoggedInUser', context)
         self.emailUser = EmailUser(context, userInfo)
         self._addresses = None
-        
+
+class EmailAddressesForUser(EmailAddressesForUserInfo):
+    def __init__(self, user):
+        userInfo = IGSUserInfo(user)
+        self.context = user
+        self.emailUser = EmailUser(userInfo.user, userInfo)
+        self._addresses = None
+
