@@ -17,6 +17,33 @@ def __get_acl_users_for_context(context):
     return acl_users
 get_acl_users_for_context = __get_acl_users_for_context
 
+# --=mpj17=-- The email regular expression (EMAIL_RE) below is more
+#   strict than the standard,
+#   RFC 5322 <http://tools.ietf.org/html/rfc5322#section-3.4.1>.
+#   The checker sould be changed to be more flexible.
+#
+#   addr-spec       =   local-part "@" domain
+#
+#   local-part      =   dot-atom / quoted-string / obs-local-part
+#
+#   dot-atom        =   [CFWS] dot-atom-text [CFWS]
+#
+#   dot-atom-text   =   1*atext *("." 1*atext)
+#
+#   atom            =   [CFWS] 1*atext [CFWS]
+#
+#   atext           =   ALPHA / DIGIT /    ; Printable US-ASCII
+#                       "!" / "#" /        ;  characters not including
+#                       "$" / "%" /        ;  specials.  Used for atoms.
+#                       "&" / "'" /
+#                       "*" / "+" /
+#                       "-" / "/" /
+#                       "=" / "?" /
+#                       "^" / "_" /
+#                       "`" / "{" /
+#                       "|" / "}" /
+#                       "~"
+#
 EMAIL_RE = r'\b[a-z0-9\._%+-]+@([a-z0-9\-]+\.)+[a-z]{2,4}\b'
 emailRE = re.compile(EMAIL_RE, re.IGNORECASE)
 def check_email(addr):
