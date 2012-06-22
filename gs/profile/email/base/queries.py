@@ -1,36 +1,46 @@
 # coding=utf-8
 import sqlalchemy as sa
+from zope.sqlalchemy import mark_changed
+from gs.database import getTable, getSession
 
 class UserEmailQuery(object):
 
-    def __init__(self, user, da):
-        self.context = user
+    def __init__(self, user, da = None):
         self.userId = user.getId()
-        self.userEmailTable = da.createTable('user_email')
-        self.emailVerificationTable = da.createTable('email_verification')
+        self.userEmailTable = getTable('user_email')
+        self.emailVerificationTable = getTable('email_verification')
 
     def add_address(self, address, isPreferred=False):
         uet = self.userEmailTable
         i = uet.insert()
-        i.execute(user_id=self.userId,
-            email=address,
-            is_preferred=isPreferred,
-            verified_date=None)
+        d = {'user_id': self.userId,
+             'email': address,
+             'is_preferred': isPreferred,
+             'verified_date': None}
+        
+        session = getSession()
+        session.execute(i, params=d)
+        mark_changed(session)
 
     def remove_address(self, address):
         uet = self.userEmailTable        
         d = uet.delete(sa.func.lower(uet.c.email) == address.lower())
-        d.execute()
+
+        session = getSession()
+        session.execute(d)
+        mark_changed(session)
 
     def get_addresses(self, preferredOnly=False, verifiedOnly=True):
         uet = self.userEmailTable
-        s = sa.select([uet.c.email], uet.c.user_id == self.userId)
+        s = sa.select([uet.c.email])
+        s.append_whereclause(uet.c.user_id == self.userId)
         if preferredOnly:
             s.append_whereclause(uet.c.is_preferred == preferredOnly)
         if verifiedOnly:
             s.append_whereclause(uet.c.verified_date!=None)
-        r = s.execute()
-        
+
+        session = getSession()
+        r = session.execute(s)
         addresses = []
         for row in r.fetchall():
             addresses.append(row['email'])
@@ -40,8 +50,9 @@ class UserEmailQuery(object):
         uet = self.userEmailTable
         s = sa.select([uet.c.email], uet.c.user_id == self.userId)
         s.append_whereclause(uet.c.verified_date == None)
-        r = s.execute()
-        
+
+        session = getSession()
+        r = session.execute(s)
         addresses = []
         for row in r.fetchall():
             addresses.append(row['email'])
@@ -49,9 +60,11 @@ class UserEmailQuery(object):
     
     def is_address_verified(self, address):
         uet = self.userEmailTable
-        s = uet.select(sa.func.lower(uet.c.email) == address.lower())
-        r = s.execute()
-
+        s = sa.select([uet.c.verified_date], limit=1)
+        s.append_whereclause(sa.func.lower(uet.c.email) == address.lower())
+        
+        session = getSession()
+        r = session.execute(s)
         retval = False
         if r.rowcount == 1:
             retval = r.fetchone()['verified_date'] != None
@@ -62,5 +75,8 @@ class UserEmailQuery(object):
         uet = self.userEmailTable
         u = uet.update(sa.and_(uet.c.user_id==self.userId,
                                sa.func.lower(uet.c.email) == address.lower()))
-        u.execute(is_preferred=isPreferred)
+        d = {'is_preferred': isPreferred,}
         
+        session = getSession()
+        session.execute(u, params=d)
+        mark_changed(session)
