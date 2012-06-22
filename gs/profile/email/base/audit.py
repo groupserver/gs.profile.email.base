@@ -280,8 +280,7 @@ class Auditor(object):
     def __init__(self, context, siteInfo):
         self.siteInfo = siteInfo
         self.context = context
-        da = context.zsqlalchemy
-        self.queries = AuditQuery(da)
+        self.queries = AuditQuery()
         self.factory = AuditEventFactory()
         
     def info(self, code, instanceUserInfo='', instanceDatum = '', 

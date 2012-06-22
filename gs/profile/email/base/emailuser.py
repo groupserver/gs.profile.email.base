@@ -17,14 +17,7 @@ class EmailUser(object):
         self.context = context
         self.userInfo = userInfo
         self.__auditor = self.__siteInfo = None
-        self.__query = None
-    
-    @property
-    def query(self):
-        if self.__query == None:
-            self.__query = UserEmailQuery(self.userInfo.user, 
-                            self.context.zsqlalchemy)
-        return self.__query
+        self.query = UserEmailQuery(self.userInfo.user)
     
     @property
     def auditor(self):
