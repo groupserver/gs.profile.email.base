@@ -32,6 +32,7 @@ setup(name='gs.profile.email.base',
     zip_safe=True,
     install_requires=[
         'setuptools',
+        'gs.database',
         # -*- Extra requirements: -*-
     ],
     entry_points="""
