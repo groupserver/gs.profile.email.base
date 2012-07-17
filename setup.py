@@ -32,7 +32,17 @@ setup(name='gs.profile.email.base',
     zip_safe=True,
     install_requires=[
         'setuptools',
+        'pytz',
+        'sqlalchemy',
+        'zope.component',
+        'zope.interface',
+        'zope.schema',
+        'zope.sqlalchemy',
+        'Zope2',
         'gs.database',
+        'Products.GSAuditTrail',
+        'Products.XWFCore',
+        'Products.CustomUserFolder',
         # -*- Extra requirements: -*-
     ],
     entry_points="""
