@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 import os
 from setuptools import setup, find_packages
 from version import get_version
@@ -34,18 +34,19 @@ setup(name='gs.profile.email.base',
         'setuptools',
         'pytz',
         'sqlalchemy',
+        'zope.browserresource',
+        'zope.cachedescriptors',
         'zope.component',
         'zope.interface',
         'zope.schema',
         'zope.sqlalchemy',
+        'AccessControl',
         'Zope2',
         'gs.database',
         'Products.GSAuditTrail',
         'Products.XWFCore',
         'Products.CustomUserFolder',
-        # -*- Extra requirements: -*-
     ],
     entry_points="""
     # -*- Entry points: -*-
     """,)
-
