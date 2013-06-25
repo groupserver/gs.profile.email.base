@@ -3,9 +3,10 @@ import sqlalchemy as sa
 from zope.sqlalchemy import mark_changed
 from gs.database import getTable, getSession
 
+
 class UserEmailQuery(object):
 
-    def __init__(self, user, da = None):
+    def __init__(self, user, da=None):
         self.userId = user.getId()
         self.userEmailTable = getTable('user_email')
         self.emailVerificationTable = getTable('email_verification')
@@ -17,13 +18,13 @@ class UserEmailQuery(object):
              'email': address,
              'is_preferred': isPreferred,
              'verified_date': None}
-        
+
         session = getSession()
         session.execute(i, params=d)
         mark_changed(session)
 
     def remove_address(self, address):
-        uet = self.userEmailTable        
+        uet = self.userEmailTable
         d = uet.delete(sa.func.lower(uet.c.email) == address.lower())
 
         session = getSession()
@@ -37,19 +38,18 @@ class UserEmailQuery(object):
         if preferredOnly:
             s.append_whereclause(uet.c.is_preferred == preferredOnly)
         if verifiedOnly:
-            s.append_whereclause(uet.c.verified_date!=None)
-
+            s.append_whereclause(uet.c.verified_date != None)  # lint:ok
         session = getSession()
         r = session.execute(s)
         addresses = []
         for row in r.fetchall():
             addresses.append(row['email'])
         return addresses
-    
+
     def get_unverified_addresses(self):
         uet = self.userEmailTable
         s = sa.select([uet.c.email], uet.c.user_id == self.userId)
-        s.append_whereclause(uet.c.verified_date == None)
+        s.append_whereclause(uet.c.verified_date == None)  # lint:ok
 
         session = getSession()
         r = session.execute(s)
@@ -57,26 +57,26 @@ class UserEmailQuery(object):
         for row in r.fetchall():
             addresses.append(row['email'])
         return addresses
-    
+
     def is_address_verified(self, address):
         uet = self.userEmailTable
         s = sa.select([uet.c.verified_date], limit=1)
         s.append_whereclause(sa.func.lower(uet.c.email) == address.lower())
-        
+
         session = getSession()
         r = session.execute(s)
         retval = False
         if r.rowcount == 1:
-            retval = r.fetchone()['verified_date'] != None
+            retval = r.fetchone()['verified_date'] is not None
         assert type(retval) == bool
         return retval
-    
+
     def update_delivery(self, address, isPreferred):
         uet = self.userEmailTable
-        u = uet.update(sa.and_(uet.c.user_id==self.userId,
+        u = uet.update(sa.and_(uet.c.user_id == self.userId,
                                sa.func.lower(uet.c.email) == address.lower()))
-        d = {'is_preferred': isPreferred,}
-        
+        d = {'is_preferred': isPreferred, }
+
         session = getSession()
         session.execute(u, params=d)
         mark_changed(session)
