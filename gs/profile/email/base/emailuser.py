@@ -1,7 +1,8 @@
 # coding=utf-8
 import rfc822
-from zope.interface import implements, Interface
+from zope.cachedescriptors.property import Lazy
 from zope.component import adapts, createObject
+from zope.interface import implements, Interface
 from zope.schema import ValidationError
 from Products.CustomUserFolder.interfaces import ICustomUser, IGSUserInfo
 from queries import UserEmailQuery
@@ -9,29 +10,30 @@ from interfaces import IGSEmailUser
 from audit import Auditor, ADD_ADDRESS, REMOVE_ADDRESS
 from audit import DELIVERY_ON, DELIVERY_OFF
 
+
 class EmailUser(object):
     implements(IGSEmailUser)
     adapts(Interface, IGSUserInfo)
-    
+
     def __init__(self, context, userInfo):
         self.context = context
         self.userInfo = userInfo
-        self.__auditor = self.__siteInfo = None
-        self.query = UserEmailQuery(self.userInfo.user)
-    
-    @property
-    def auditor(self):
-        if self.__auditor == None:
-            self.__auditor = Auditor(self.context, self.siteInfo)
-        return self.__auditor
 
-    @property
+    @Lazy
+    def query(self):
+        retval = UserEmailQuery(self.userInfo.user)
+        return retval
+
+    @Lazy
+    def auditor(self):
+        retval = Auditor(self.context, self.siteInfo)
+        return retval
+
+    @Lazy
     def siteInfo(self):
-        if self.__siteInfo == None:
-            self.__siteInfo = \
-              createObject('groupserver.SiteInfo', self.context)
-        return self.__siteInfo
-    
+        retval = createObject('groupserver.SiteInfo', self.context)
+        return retval
+
     def add_address(self, address, isPreferred=False):
         assert address not in self.get_addresses(), \
           '%s (%s) already has the address <%s>' % \
@@ -39,7 +41,7 @@ class EmailUser(object):
         address = self._validateAndNormalizeEmail(address)
         self.query.add_address(address, isPreferred)
         self.auditor.info(ADD_ADDRESS, self.userInfo, address)
-        
+
     def remove_address(self, address):
         assert address in self.get_addresses(), \
           '%s (%s) does not have the address <%s>' % \
@@ -47,33 +49,33 @@ class EmailUser(object):
         address = self._validateAndNormalizeEmail(address)
         self.query.remove_address(address)
         self.auditor.info(REMOVE_ADDRESS, self.userInfo, address)
-        
+
     def is_address_verified(self, address):
         assert address in self.get_addresses(), \
           '%s (%s) does not have the address <%s>' % \
            (self.userInfo.name, self.userId, address)
         return self.query.is_address_verified(address)
-    
+
     def get_addresses(self):
         # --=mpj17=-- Note that registration requires this to be able
-        #   to return all the user's email addresses, not just the 
+        #   to return all the user's email addresses, not just the
         #   verified addresses.
         return self.query.get_addresses(preferredOnly=False, verifiedOnly=False)
 
     def get_verified_addresses(self):
-        return self.query.get_addresses(preferredOnly=False, verifiedOnly=True)    
+        return self.query.get_addresses(preferredOnly=False, verifiedOnly=True)
 
     def get_unverified_addresses(self):
         return self.query.get_unverified_addresses()
-        
+
     def get_delivery_addresses(self):
         return self.query.get_addresses(preferredOnly=True)
-    
+
     def set_delivery(self, address):
         address = self._validateAndNormalizeEmail(address)
         allAddresses = self.get_addresses()
-    
-        # If we don't have the email address in the database yet, 
+
+        # If we don't have the email address in the database yet,
         #  add it and set it for preferred delivery
         if address not in allAddresses:
             self.add_address(address, isPreferred=True)
@@ -81,11 +83,11 @@ class EmailUser(object):
         else:
             self.query.update_delivery(address, isPreferred=True)
         self.auditor.info(DELIVERY_ON, self.userInfo, address)
-        
+
     def drop_delivery(self, address):
         address = self._validateAndNormalizeEmail(address)
         self.query.update_delivery(address, isPreferred=False)
-        self.auditor.info(DELIVERY_OFF, self.userInfo, address)        
+        self.auditor.info(DELIVERY_OFF, self.userInfo, address)
 
     def _validateAndNormalizeEmail(self, address):
         """ Validates and normalizes an email address.
@@ -107,6 +109,7 @@ class EmailUser(object):
             raise ValidationError('No email address given')
         return address
 
+
 class EmailUserFromEmailAddressFactory(object):
     """ Create an EmailUser from an email address.
     """
@@ -116,13 +119,14 @@ class EmailUserFromEmailAddressFactory(object):
         user = aclUsers.get_userByEmail(address)
         if user:
             userInfo = IGSUserInfo(user)
-            retval = EmailUser(context, userInfo) 
+            retval = EmailUser(context, userInfo)
         return retval
-        
+
+
 class EmailUserFromUser(EmailUser):
-    implements( IGSEmailUser )
-    adapts( ICustomUser )
+    implements(IGSEmailUser)
+    adapts(ICustomUser)
+
     def __init__(self, user):
         userInfo = IGSUserInfo(user)
         EmailUser.__init__(self, user, userInfo)
-        
