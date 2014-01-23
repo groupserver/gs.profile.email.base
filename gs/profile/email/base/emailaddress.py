@@ -1,10 +1,25 @@
-# coding=utf-8
-import re
-from operator import or_ 
+# -*- coding: utf-8 -*-
+##############################################################################
+#
+# Copyright © 2014 OnlineGroups.net and Contributors.
+# All Rights Reserved.
+#
+# This software is subject to the provisions of the Zope Public License,
+# Version 2.1 (ZPL).  A copy of the ZPL should accompany this distribution.
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+##############################################################################
+from __future__ import absolute_import
 from email.utils import parseaddr
+from operator import or_
+from re import compile as re_compile, IGNORECASE
 from zope.schema import ASCIILine, ValidationError
 
 __context_acl_users = {}
+
 
 def __get_acl_users_for_context(context):
     assert context
@@ -45,10 +60,13 @@ get_acl_users_for_context = __get_acl_users_for_context
 #                       "~"
 #
 EMAIL_RE = r'\b[a-z0-9\._%+-]+@([a-z0-9\-]+\.)+[a-z]{2,4}\b'
-emailRE = re.compile(EMAIL_RE, re.IGNORECASE)
+emailRE = re_compile(EMAIL_RE, IGNORECASE)
+
+
 def check_email(addr):
     r = parseaddr(addr)
-    return emailRE.match(r[1]) != None
+    return emailRE.match(r[1]) is not None
+
 
 BANNED_DOMAINS = ['dodgit.com', 'enterto.com', 'myspamless.com',
   'e4ward.com', 'guerrillamail.biz', 'jetable.net', 'mailinator.com',
@@ -57,13 +75,15 @@ BANNED_DOMAINS = ['dodgit.com', 'enterto.com', 'myspamless.com',
   'spaml.com', 'temporaryinbox.com', 'mx0.wwwnew.eu', 'bodhi.lawlita.com',
   'mail.htl22.at', 'zoemail.net', 'despam.it']
 
+
 def address_exists(context, addr):
     n, e = parseaddr(addr)
     acl_users = get_acl_users_for_context(context)
     user = acl_users.get_userIdByEmail(e)
-    retval = user != None
+    retval = user is not None
     assert type(retval) == bool
     return retval
+
 
 def disposable_address(addr):
     n, e = parseaddr(addr)
@@ -72,25 +92,38 @@ def disposable_address(addr):
     assert type(retval) == bool
     return retval
 
+
 class NotAValidEmailAddress(ValidationError):
     """Not a valid email address"""
     def __init__(self, value):
         self.value = value
+
+    def __unicode__(self):
+        m = u'The text "{0}" is not a valid email address.'
+        retval = m.format(self.value)
+        return retval
+
     def __str__(self):
-        return u'The text "%s" is not a valid email address.' % self.value
+        retval = unicode(self).encode('ascii', 'ignore')
+        return retval
+
     def doc(self):
         return self.__str__()
+
 
 class DisposableEmailAddressNotAllowed(ValidationError):
     """Disposable Email Addresses are Not Allowed"""
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return u'The email address "%s" is from a disposable '\
           u'email-address provider; disposable '\
           u'email-addresses cannot be used with this site.' % self.value
+
     def doc(self):
         return self.__str__()
+
 
 class EmailAddress(ASCIILine):
     '''An email-address entry.
@@ -105,15 +138,19 @@ class EmailAddress(ASCIILine):
         # AM: We've since gone in the email_blacklist direction.
         return True
 
+
 class EmailAddressExists(ValidationError):
     """Email Address already exists on the system"""
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return u'The email address "%s" already exists on this site.' % \
           self.value
+
     def doc(self):
         return self.__str__()
+
 
 class NewEmailAddress(EmailAddress):
     def constraint(self, value):
@@ -121,4 +158,3 @@ class NewEmailAddress(EmailAddress):
         if address_exists(self.context, value):
             raise EmailAddressExists(value)
         return True
-

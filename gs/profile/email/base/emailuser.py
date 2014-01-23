@@ -1,14 +1,28 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
+##############################################################################
+#
+# Copyright © 2014 OnlineGroups.net and Contributors.
+# All Rights Reserved.
+#
+# This software is subject to the provisions of the Zope Public License,
+# Version 2.1 (ZPL).  A copy of the ZPL should accompany this distribution.
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+##############################################################################
+from __future__ import absolute_import
 import rfc822
 from zope.cachedescriptors.property import Lazy
 from zope.component import adapts, createObject
 from zope.interface import implements, Interface
 from zope.schema import ValidationError
 from Products.CustomUserFolder.interfaces import ICustomUser, IGSUserInfo
-from queries import UserEmailQuery
-from interfaces import IGSEmailUser
-from audit import Auditor, ADD_ADDRESS, REMOVE_ADDRESS
-from audit import DELIVERY_ON, DELIVERY_OFF
+from .audit import Auditor, ADD_ADDRESS, REMOVE_ADDRESS
+from .audit import DELIVERY_ON, DELIVERY_OFF
+from .interfaces import IGSEmailUser
+from .queries import UserEmailQuery
 
 
 class EmailUser(object):
