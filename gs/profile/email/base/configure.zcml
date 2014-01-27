@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<configure 
-  xmlns="http://namespaces.zope.org/zope"
-  xmlns:browser="http://namespaces.zope.org/browser"
-  xmlns:five="http://namespaces.zope.org/five"
-  i18n_domain="groupserver">
+<!-- Copyright © 2014 OnlineGroups.net and Contributors. -->
+<!-- All Rights Reserved. -->
+
+<!-- This software is subject to the provisions of the Zope Public -->
+<!-- License, Version 2.1 (ZPL).  A copy of the ZPL should accompany this -->
+<!-- distribution. -->
+
+<!-- THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED -->
+<!-- WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED -->
+<!-- WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND -->
+<!-- FITNESS FOR A PARTICULAR PURPOSE. -->
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:browser="http://namespaces.zope.org/browser"
+           i18n_domain="groupserver">
 
   <!-- Factories -->
   <utility
     name="gs.profile.email.base"
     factory=".audit.AuditEventFactory"
     provides="zope.component.interfaces.IFactory"
-    permission="zope.Public" 
+    permission="zope.Public"
   />
   <utility
     name="groupserver.EmailUserFromEmailAddress"
@@ -18,7 +27,7 @@
     provides="zope.component.interfaces.IFactory"
     permission="zope.Public"
   />
-  
+
   <!-- Adapters -->
   <interface interface=".interfaces.IGSEmailUser" />
   <adapter
@@ -26,7 +35,7 @@
     provides=".interfaces.IGSEmailUser"
     permission="zope2.Public"
   />
-  
+
   <!-- Named Vocabularies -->
   <utility
     name="EmailAddressesForUser"
@@ -38,11 +47,10 @@
     provides="zope.schema.interfaces.IVocabularyFactory"
     component=".vocabularies.EmailAddressesForLoggedInUser"
   />
-  
+
   <!-- JavaScript -->
-  <browser:resource name="check_email-20110222.js" 
+  <browser:resource name="check_email-20110222.js"
     file="javascript/check_email.js"
     permission="zope2.Public" />
-    
-</configure>
 
+</configure>
