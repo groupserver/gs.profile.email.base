@@ -12,11 +12,11 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 from email.utils import parseaddr
 from operator import or_
 from re import compile as re_compile, IGNORECASE
-from zope.schema import ASCIILine, ValidationError
+from zope.schema import TextLine, ValidationError
 
 __context_acl_users = {}
 
@@ -99,7 +99,7 @@ class NotAValidEmailAddress(ValidationError):
         self.value = value
 
     def __unicode__(self):
-        m = u'The text "{0}" is not a valid email address.'
+        m = 'The text "{0}" is not a valid email address.'
         retval = m.format(self.value)
         return retval
 
@@ -117,15 +117,15 @@ class DisposableEmailAddressNotAllowed(ValidationError):
         self.value = value
 
     def __str__(self):
-        return u'The email address "%s" is from a disposable '\
-          u'email-address provider; disposable '\
-          u'email-addresses cannot be used with this site.' % self.value
+        return 'The email address "%s" is from a disposable '\
+          'email-address provider; disposable '\
+          'email-addresses cannot be used with this site.' % self.value
 
     def doc(self):
         return self.__str__()
 
 
-class EmailAddress(ASCIILine):
+class EmailAddress(TextLine):
     '''An email-address entry.
     '''
     def constraint(self, value):
@@ -145,7 +145,7 @@ class EmailAddressExists(ValidationError):
         self.value = value
 
     def __str__(self):
-        return u'The email address "%s" already exists on this site.' % \
+        return 'The email address "%s" already exists on this site.' % \
           self.value
 
     def doc(self):
