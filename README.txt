@@ -7,7 +7,7 @@ Core email settings code
 
 :Author: `Michael JasonSmith`_
 :Contact: Michael JasonSmith <mpj17@onlinegroups.net>
-:Date: 2013-06-25
+:Date: 2014-01-30
 :Organization: `GroupServer.org`_
 :Copyright: This document is licensed under a
   `Creative Commons Attribution-Share Alike 3.0 New Zealand License`_
@@ -44,11 +44,90 @@ The latter is often used to provide an email-address selector::
         vocabulary = 'EmailAddressesForLoggedInUser',
         required=True)
 
+:See also: The getters_.
+
 Email User
 ==========
 
 The email user provides information about a person and his or her email
 addresses.
+
+Factories
+---------
+
+``gs.profile.email.base.interfaces.IGSEmailUser(user)``:
+  The adaptor to create an email user from either a ``ICustomUser`` or a
+  ``IGSUserInfo``.
+
+``EmailUserFromUser(customUser)``:
+  Create an email user from a ``ICustomUser``.
+
+``EmailUser(userInfo)``:
+  Create an email user from an ``IGSUserInfo``.
+
+``createObject('groupserver.EmailUserFromEmailAddress', context, addr)``:
+  The ZCA factory to create an email user from an address and Zope context.
+
+``EmailUserFromEmailAddressFactory(context, address)``:
+  Create an email user from an email address (and Zope context).
+
+
+Methods
+-------
+
+Getters
+~~~~~~~
+
+See also the vocabularies_.
+
+``get_addresses``:
+  Get all the addresses associated with the user.
+
+``get_verified_addresses``:
+  Get all the addresses associated with the user that have been verified.
+
+``get_unverified_addresses``:
+  Get all the addresses associated with the user that are yet to be
+  verified.
+
+``get_delivery_addresses``:
+  Get all the addresses associated with the user that are set to
+  default-delivery (preferred).
+
+``is_address_verified(address)``:
+  Returns ``True`` if the address is verified, ``False`` otherwise.
+
+
+Setters
+~~~~~~~
+
+``set_delivery(address)``:
+   Set the address to be a delivery address.
+
+``drop_delivery(address)``:
+   Remove the address from the list of delivery addresses.
+
+``add_address(`address, isPreferred=False)``:
+    Associate an address with the user, optionally setting to be a delivery
+    address.
+
+``remove_address(address)``:
+    Remove an address from the user.
+
+``sanitise_address``
+====================
+
+Sanitise an email address, being tolerant of what people enter.
+
+:Synopsis:  ``sanitise_address(emailAddress)``
+:Description: This function sanitises an email address, returning the
+              *addr-spec* portion stripped of odd characters. The 
+              *display-name* portion, if present, is discarded.
+:Arguments: ``emailAddress``: An email address, as a string.
+:Returns: A sane email address (as a string).
+:See also: `RFC 5322`_, ``parseaddr`` [#parseAddr]_
+
+.. _RFC 5322: http://tools.ietf.org/html/rfc5322
 
 Resources
 =========
@@ -67,5 +146,7 @@ Resources
 .. [#settings] See
                <https://source.iopen.net/groupserver/gs.profile.email.settings>
 .. [#verify] See <https://source.iopen.net/groupserver/gs.profile.email.verify>
+.. [#parseAddr] See
+               <http://docs.python.org/2.7/library/email.util.html#email.utils.parseaddr>
 
 ..  LocalWords:  nz GSProfile TODO redirector LocalWords
