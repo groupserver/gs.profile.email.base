@@ -7,7 +7,7 @@ Core email settings code
 
 :Author: `Michael JasonSmith`_
 :Contact: Michael JasonSmith <mpj17@onlinegroups.net>
-:Date: 2014-01-30
+:Date: 2014-02-11
 :Organization: `GroupServer.org`_
 :Copyright: This document is licensed under a
   `Creative Commons Attribution-Share Alike 3.0 New Zealand License`_
@@ -95,24 +95,53 @@ See also the vocabularies_.
   default-delivery (preferred).
 
 ``is_address_verified(address)``:
-  Returns ``True`` if the address is verified, ``False`` otherwise.
-
+  Returns ``True`` if the address is verified, ``False`` otherwise. Raises
+  the ``gs.profile.email.base.AddressMissingError`` error_ if the email-user
+  lacks the address.
 
 Setters
 ~~~~~~~
 
-``set_delivery(address)``:
-   Set the address to be a delivery address.
+``set_delivery(address)``: 
+    Set the address to be a delivery address. 
 
 ``drop_delivery(address)``:
    Remove the address from the list of delivery addresses.
 
-``add_address(`address, isPreferred=False)``:
+``add_address(address, isPreferred=False)``:
     Associate an address with the user, optionally setting to be a delivery
-    address.
+    address. Raises the ``gs.profile.email.base.AddressExistsError``
+    error_ if the email-user already has the address.
 
 ``remove_address(address)``:
-    Remove an address from the user.
+    Remove an address from the user. Raises the
+    ``gs.profile.email.base.AddressMissingError`` error_ if the email-user
+    lacks the address.
+
+Error
+-----
+
+The errors raised by the email user are a subclass of
+``gs.profile.email.base.AddressErrror`` (itself a subclass of
+``ValueError``). They have the following attributes.
+
+``userId``: 
+    The ID of the user with the error.
+
+``address``: 
+    The email-address that caused the problem.
+
+There are two possible errors that are raised: one for when an address
+exists (and it shouldn't) and one for when it is missing (and it should
+exist).
+
+:``gs.profile.email.base.AddressExistsError``:
+    Raised when an email address that has been passed in as an argument
+    already is part of a profile.
+
+:``gs.profile.email.base.AddressMissingError``:
+    Raised when an email address that has been passed in as an argument is
+    missing from a profile.
 
 ``sanitise_address``
 ====================
