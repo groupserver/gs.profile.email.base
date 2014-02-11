@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-# Copyright © 2014 OnlineGroups.net and Contributors.
+# Copyright © 2013, 2014 OnlineGroups.net and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -12,15 +12,16 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 import rfc822
 from zope.cachedescriptors.property import Lazy
 from zope.component import adapts, createObject
 from zope.interface import implements, Interface
 from zope.schema import ValidationError
 from Products.CustomUserFolder.interfaces import ICustomUser, IGSUserInfo
-from .audit import Auditor, ADD_ADDRESS, REMOVE_ADDRESS
-from .audit import DELIVERY_ON, DELIVERY_OFF
+from .audit import Auditor, ADD_ADDRESS, REMOVE_ADDRESS, DELIVERY_ON, \
+    DELIVERY_OFF
+from .err import AddressMissingError, AddressExistsError
 from .interfaces import IGSEmailUser
 from .queries import UserEmailQuery
 
@@ -49,26 +50,36 @@ class EmailUser(object):
         return retval
 
     def add_address(self, address, isPreferred=False):
-        assert address not in self.get_addresses(), \
-          '%s (%s) already has the address <%s>' % \
-           (self.userInfo.name, self.userId, address)
+        if address in self.get_addresses():
+            m = 'Cannot addd the address, as {0} ({1}) already has the ' \
+                'address <{2}>.'
+            msg = m.format(self.userInfo.name, self.userInfo.id, address)
+            raise AddressExistsError(msg, address, self.userInfo.id)
+
         address = self._validateAndNormalizeEmail(address)
         self.query.add_address(address, isPreferred)
         self.auditor.info(ADD_ADDRESS, self.userInfo, address)
 
     def remove_address(self, address):
-        assert address in self.get_addresses(), \
-          '%s (%s) does not have the address <%s>' % \
-           (self.userInfo.name, self.userId, address)
+        if address not in self.get_addresses():
+            m = 'Cannot remove the address, as {0} ({1}) lacks the address '\
+                '<{2}>.'
+            msg = m.format(self.userInfo.name, self.userInfo.id, address)
+            raise AddressMissingError(msg, address, self.userInfo.id)
+
         address = self._validateAndNormalizeEmail(address)
         self.query.remove_address(address)
         self.auditor.info(REMOVE_ADDRESS, self.userInfo, address)
 
     def is_address_verified(self, address):
-        assert address in self.get_addresses(), \
-          '%s (%s) does not have the address <%s>' % \
-           (self.userInfo.name, self.userId, address)
-        return self.query.is_address_verified(address)
+        if address not in self.get_addresses():
+            m = 'Cannot verify the address, as {0} ({1}) lacks the address '\
+                '<{2}>.'
+            msg = m.format(self.userInfo.name, self.userInfo.id, address)
+            raise AddressMissingError(msg, address, self.userInfo.id)
+
+        retval = self.query.is_address_verified(address)
+        return retval
 
     def get_addresses(self):
         # --=mpj17=-- Note that registration requires this to be able
@@ -104,8 +115,7 @@ class EmailUser(object):
         self.auditor.info(DELIVERY_OFF, self.userInfo, address)
 
     def _validateAndNormalizeEmail(self, address):
-        """ Validates and normalizes an email address.
-        """
+        """ Validates and normalizes an email address."""
         address = address.strip()
         if not address:
             raise ValidationError('No email address given')
@@ -125,8 +135,7 @@ class EmailUser(object):
 
 
 class EmailUserFromEmailAddressFactory(object):
-    """ Create an EmailUser from an email address.
-    """
+    """ Create an EmailUser from an email address."""
     def __call__(self, context, address):
         retval = None
         aclUsers = context.site_root().acl_users
