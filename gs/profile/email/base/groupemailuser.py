@@ -83,16 +83,21 @@ class GroupEmailUser(object):
             if not retval:
                 # If there are no specific settings for the group, return
                 #   the default settings
-                retval = self.get_preferredEmailAddresses()  # FIXME
-
+                retval = self.get_preferred_email_addresses()
         return retval
 
     def get_specific_email_addresses(self):
-        '''Get the specific email addresses for a user in a group
+        '''Get the specific email addresses for a member of a group
 
 :returns: A list of email addresses that the current user has set for
           specific delivery. If no addresses are set an empty list is
           returned.
 :rtype: ``list``'''
         retval = self.query.get_groupUserEmail()
+        return retval
+
+    def get_preferred_email_addresses(self):
+        'Get the preferred email addresses of a group member.'
+        retval = self.query.get_addresses(preferredOnly=True,
+                                            verifiedOnly=False)
         return retval

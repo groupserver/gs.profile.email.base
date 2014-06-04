@@ -24,7 +24,6 @@ class UserEmailQuery(object):
         self.userId = user.getId()
         self.userEmailTable = getTable('user_email')
         self.emailVerificationTable = getTable('email_verification')
-        self.groupUserEmailTable = getTable('group_user_email')
 
     def add_address(self, address, isPreferred=False):
         uet = self.userEmailTable
@@ -109,6 +108,8 @@ class GroupUserEmailQuery(object):
         self.groupId = groupInfo.id
         self.siteId = groupInfo.siteInfo.id
         self.groupUserEmailTable = getTable('group_user_email')
+        self.userEmailTable = getTable('user_email')
+
         assert self.userId, 'User ID not set'
         assert self.groupId, 'Group ID not set'
         assert self.siteID, 'Site ID not set'
@@ -214,3 +215,21 @@ class GroupUserEmailQuery(object):
             result = r.fetchone()
             setting = result['setting']
         return setting
+
+    def get_addresses(self, preferredOnly=False, verifiedOnly=True):
+        # --=mpj17=-- Cut'n'paste software engineering. Forgive me.
+        uet = self.userEmailTable
+        s = sa.select([uet.c.email])
+        s.append_whereclause(uet.c.user_id == self.userId)
+        if preferredOnly:
+            s.append_whereclause(uet.c.is_preferred == preferredOnly)
+        if verifiedOnly:
+            s.append_whereclause(uet.c.verified_date != None)  # lint:ok
+
+        session = getSession()
+        r = session.execute(s)
+
+        retval = []
+        for row in r.fetchall():
+            retval.append(row['email'])
+        return retval
