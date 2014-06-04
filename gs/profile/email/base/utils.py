@@ -17,12 +17,12 @@ from email.utils import parseaddr
 
 
 def sanitise_address(emailAddress):
-    if type(emailAddress) not in (str, unicode):
+    if not isinstance(emailAddress, basestring):
         m = '{0} is not a string'.format(type(emailAddress))
         raise TypeError(m)
 
     addrName, retval = parseaddr(emailAddress)
     retval = retval.strip(',.!?; \t\n\r<>(){}[]')
 
-    assert type(retval) in (str, unicode)
+    assert isinstance(retval, basestring)
     return retval
