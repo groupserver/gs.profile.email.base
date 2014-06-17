@@ -15,21 +15,16 @@
 from __future__ import absolute_import, unicode_literals
 import rfc822
 from zope.cachedescriptors.property import Lazy
-from zope.component import adapts, createObject
-from zope.interface import implements, Interface
+from zope.component import createObject
 from zope.schema import ValidationError
-from Products.CustomUserFolder.interfaces import ICustomUser, IGSUserInfo
+from Products.CustomUserFolder.interfaces import IGSUserInfo
 from .audit import Auditor, ADD_ADDRESS, REMOVE_ADDRESS, DELIVERY_ON, \
     DELIVERY_OFF
 from .err import AddressMissingError, AddressExistsError
-from .interfaces import IGSEmailUser
 from .queries import UserEmailQuery
 
 
 class EmailUser(object):
-    implements(IGSEmailUser)
-    adapts(Interface, IGSUserInfo)
-
     def __init__(self, context, userInfo):
         self.context = context
         self.userInfo = userInfo
@@ -49,8 +44,20 @@ class EmailUser(object):
         retval = createObject('groupserver.SiteInfo', self.context)
         return retval
 
+    def has_address(self, address):
+        'Returns ``True`` the user has the ``address``. *Case* *insensitive*.'
+        l_address = address.lower()
+        l_addresses = [a.lower() for a in self.get_addresses()]
+        retval = l_address in l_addresses
+        return retval
+
+    def __contains__(self, a):
+        'Allows ``addr in emailUser`` and ``addr not in emailUser``.'
+        retval = self.has_address(a)
+        return retval
+
     def add_address(self, address, isPreferred=False):
-        if address in self.get_addresses():
+        if address in self:
             m = 'Cannot addd the address, as {0} ({1}) already has the ' \
                 'address <{2}>.'
             msg = m.format(self.userInfo.name, self.userInfo.id, address)
@@ -61,7 +68,7 @@ class EmailUser(object):
         self.auditor.info(ADD_ADDRESS, self.userInfo, address)
 
     def remove_address(self, address):
-        if address not in self.get_addresses():
+        if address not in self:
             m = 'Cannot remove the address, as {0} ({1}) lacks the address '\
                 '<{2}>.'
             msg = m.format(self.userInfo.name, self.userInfo.id, address)
@@ -72,7 +79,7 @@ class EmailUser(object):
         self.auditor.info(REMOVE_ADDRESS, self.userInfo, address)
 
     def is_address_verified(self, address):
-        if address not in self.get_addresses():
+        if address not in self:
             m = 'Cannot verify the address, as {0} ({1}) lacks the address '\
                 '<{2}>.'
             msg = m.format(self.userInfo.name, self.userInfo.id, address)
@@ -147,9 +154,6 @@ class EmailUserFromEmailAddressFactory(object):
 
 
 class EmailUserFromUser(EmailUser):
-    implements(IGSEmailUser)
-    adapts(ICustomUser)
-
     def __init__(self, user):
         userInfo = IGSUserInfo(user)
         EmailUser.__init__(self, user, userInfo)

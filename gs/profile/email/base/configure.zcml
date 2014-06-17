@@ -31,10 +31,16 @@
   <!-- Adapters -->
   <interface interface=".interfaces.IGSEmailUser" />
   <adapter
-    factory=".emailuser.EmailUser"
     provides=".interfaces.IGSEmailUser"
-    permission="zope2.Public"
-  />
+    for="zope.interface.Interface
+         Products.CustomUserFolder.interfaces.IGSUserInfo"
+    factory=".emailuser.EmailUser"
+    permission="zope2.Public" />
+  <adapter
+    provides=".interfaces.IGSEmailUser"
+    for="Products.CustomUserFolder.interfaces.ICustomUser"
+    factory=".emailuser.EmailUserFromUser"
+    permission="zope2.Public" />
 
   <!-- Named Vocabularies -->
   <utility
