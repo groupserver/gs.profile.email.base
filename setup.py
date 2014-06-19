@@ -29,6 +29,7 @@ requires = [
         'setuptools',
         'pytz',
         'sqlalchemy',
+        'zope.app.container',  # For the Remove event.
         'zope.browserresource',
         'zope.cachedescriptors',
         'zope.component',
