@@ -59,4 +59,8 @@
     file="javascript/check_email.js"
     permission="zope2.Public" />
 
+  <subscriber
+    for="Products.CustomUserFolder.interfaces.ICustomUser
+         zope.app.container.interfaces.IObjectRemovedEvent"
+    handler=".subscriber.remove_email_data"
 </configure>
