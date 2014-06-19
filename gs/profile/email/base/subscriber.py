@@ -6,7 +6,7 @@ from .interfaces import IGSEmailUser
 
 
 def remove_email_data(user, event):
-    log.info('Removing addresses for {0}'.user.getId())
+    log.info('Removing addresses for {0}'.format(user.getId()))
     emailUser = IGSEmailUser(user)
     for address in emailUser.get_addresses():
         emailUser.remove_address(address)

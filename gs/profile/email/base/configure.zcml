@@ -62,5 +62,5 @@
   <subscriber
     for="Products.CustomUserFolder.interfaces.ICustomUser
          zope.app.container.interfaces.IObjectRemovedEvent"
-    handler=".subscriber.remove_email_data"
+    handler=".subscriber.remove_email_data" />
 </configure>
