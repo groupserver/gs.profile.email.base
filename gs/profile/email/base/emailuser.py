@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
+############################################################################
 # Copyright © 2013, 2014 OnlineGroups.net and Contributors.
 # All Rights Reserved.
 #
@@ -11,7 +10,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-##############################################################################
+############################################################################
 from __future__ import absolute_import, unicode_literals
 import rfc822
 from zope.cachedescriptors.property import Lazy
@@ -45,7 +44,7 @@ class EmailUser(object):
         return retval
 
     def has_address(self, address):
-        'Returns ``True`` the user has the ``address``. *Case* *insensitive*.'
+        'Returns ``True`` the user has the ``address``. *Case insensitive*.'
         l_address = address.lower()
         l_addresses = [a.lower() for a in self.get_addresses()]
         retval = l_address in l_addresses
@@ -69,8 +68,8 @@ class EmailUser(object):
 
     def remove_address(self, address):
         if address not in self:
-            m = 'Cannot remove the address, as {0} ({1}) lacks the address '\
-                '<{2}>.'
+            m = 'Cannot remove the address, as {0} ({1}) lacks the '\
+                'address <{2}>.'
             msg = m.format(self.userInfo.name, self.userInfo.id, address)
             raise AddressMissingError(msg, address, self.userInfo.id)
 
@@ -80,8 +79,8 @@ class EmailUser(object):
 
     def is_address_verified(self, address):
         if address not in self:
-            m = 'Cannot verify the address, as {0} ({1}) lacks the address '\
-                '<{2}>.'
+            m = 'Cannot verify the address, as {0} ({1}) lacks the '\
+                'address <{2}>.'
             msg = m.format(self.userInfo.name, self.userInfo.id, address)
             raise AddressMissingError(msg, address, self.userInfo.id)
 
@@ -92,10 +91,12 @@ class EmailUser(object):
         # --=mpj17=-- Note that registration requires this to be able
         #   to return all the user's email addresses, not just the
         #   verified addresses.
-        return self.query.get_addresses(preferredOnly=False, verifiedOnly=False)
+        return self.query.get_addresses(preferredOnly=False,
+                                        verifiedOnly=False)
 
     def get_verified_addresses(self):
-        return self.query.get_addresses(preferredOnly=False, verifiedOnly=True)
+        return self.query.get_addresses(preferredOnly=False,
+                                        verifiedOnly=True)
 
     def get_unverified_addresses(self):
         return self.query.get_unverified_addresses()
@@ -129,7 +130,8 @@ class EmailUser(object):
         try:
             a = rfc822.AddressList(address)
         except:
-            raise ValidationError('Email address was not compliant with rfc822')
+            raise ValidationError('Email address was not compliant with '
+                                  'rfc822')
         if len(a.addresslist) > 1:
             raise ValidationError('More than one email address was given')
         try:
