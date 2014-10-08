@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-##############################################################################
+############################################################################
 #
-# Copyright © 2014 OnlineGroups.net and Contributors.
+# Copyright © 2011, 2012, 2013, 2014 OnlineGroups.net and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -11,7 +11,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-##############################################################################
+############################################################################
 import codecs
 import os
 import sys
@@ -22,31 +22,33 @@ version = get_version()
 
 with codecs.open('README.rst', encoding='utf-8') as f:
     long_description = f.read()
-with codecs.open(os.path.join("docs", "HISTORY.rst"), encoding='utf-8') as f:
+with codecs.open(os.path.join("docs", "HISTORY.rst"),
+                 encoding='utf-8') as f:
     long_description += '\n' + f.read()
 
 requires = [
-        'setuptools',
-        'pytz',
-        'sqlalchemy',
-        'zope.app.container',  # For the Remove event.
-        'zope.browserresource',
-        'zope.cachedescriptors',
-        'zope.component',
-        'zope.interface',
-        'zope.schema',
-        'zope.sqlalchemy',
-        'AccessControl',
-        'Zope2',
-        'gs.database',
-        'Products.GSAuditTrail',
-        'Products.XWFCore',
-        'Products.CustomUserFolder',
+    'setuptools',
+    'pytz',
+    'sqlalchemy',
+    'zope.app.container',  # For the Remove event.
+    'zope.browserresource',
+    'zope.cachedescriptors',
+    'zope.component',
+    'zope.interface',
+    'zope.schema',
+    'zope.sqlalchemy',
+    'AccessControl',
+    'Zope2',
+    'gs.database',
+    'Products.GSAuditTrail',
+    'Products.XWFCore',
+    'Products.CustomUserFolder',
 ]
 if (sys.version_info < (3, 4)):
     requires += ['setuptools', 'enum34']
 
-setup(name='gs.profile.email.base',
+setup(
+    name='gs.profile.email.base',
     version=version,
     description="Associate email addresses with a profile on GroupServer.",
     long_description=long_description,
@@ -60,13 +62,13 @@ setup(name='gs.profile.email.base',
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
         "Topic :: Software Development :: Libraries :: Python Modules",
-      ],
+    ],
     keywords='profile, email, address, add, remove, groupserver',
     author='Alice Murphy',
     author_email='alice@onlinegroups.net',
     maintainer='Michael JasonSmith',
     maintainer_email='mpj17@onlinegroups.net',
-    url='https://source.iopen.net/groupserver/gs.profile.email.base/',
+    url='https://github.com/groupserver/gs.profile.email.base/',
     license='ZPL 2.1',
     packages=find_packages(exclude=['ez_setup']),
     namespace_packages=['gs', 'gs.profile', 'gs.profile.email'],
