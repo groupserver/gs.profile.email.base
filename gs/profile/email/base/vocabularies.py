@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-##############################################################################
+############################################################################
 #
 # Copyright © 2014 OnlineGroups.net and Contributors.
 # All Rights Reserved.
@@ -11,11 +11,11 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-##############################################################################
+############################################################################
 from __future__ import absolute_import, unicode_literals
 from zope.cachedescriptors.property import Lazy
 from zope.component import createObject
-from zope.interface import implements, providedBy
+from zope.interface import implementer, providedBy
 from zope.interface.common.mapping import IEnumerableMapping
 from zope.schema.interfaces import IVocabulary, IVocabularyTokenized, \
     ITitledTokenizedTerm
@@ -24,8 +24,12 @@ from Products.CustomUserFolder.interfaces import IGSUserInfo
 from .emailuser import EmailUser
 
 
+@implementer(IVocabulary, IVocabularyTokenized)
 class EmailAddressesForUserInfo(object):
-    implements(IVocabulary, IVocabularyTokenized)
+    '''Get all the email addresses for a user
+
+:param userInfo: The user
+:type userInfo: :class:`Products.CustomUserFolder.interfaces.IGSUserInfo`'''
     __used_for__ = IEnumerableMapping
 
     def __init__(self, userInfo):
@@ -40,21 +44,21 @@ class EmailAddressesForUserInfo(object):
         return retval
 
     def __iter__(self):
-        """See zope.schema.interfaces.IIterableVocabulary"""
-        retval = [SimpleTerm(a, a, a)
-                  for a in self.addresses]
-        for term in retval:
-            assert term
-            assert ITitledTokenizedTerm in providedBy(term)
-            #assert term.token == term.value
-        return iter(retval)
+        """The addresses as terms (for a schema field)
+
+:returns: An itteration of addresses
+:rtype: :class:`zope.schema.vocabulary.SimpleTerm`"""
+        for a in self.addresses:
+            retval = SimpleTerm(a, a, a)
+            yield retval
 
     def __len__(self):
-        """See zope.schema.interfaces.IIterableVocabulary"""
+        """The number of addresses"""
         return len(self.addresses)
 
     def __contains__(self, value):
-        """See zope.schema.interfaces.IBaseVocabulary"""
+        """
+:returns: ``True`` if the user has an address. ``False`` otherwise."""
         retval = value in self.addresses
         assert type(retval) == bool
         return retval
@@ -74,7 +78,6 @@ class EmailAddressesForUserInfo(object):
                 retval = SimpleTerm(a, a, a)
                 assert retval
                 assert ITitledTokenizedTerm in providedBy(retval)
-                #assert retval.token == retval.value
                 return retval
         m = 'Token "{0}" not found'.format(token)
         raise LookupError(m)
@@ -92,6 +95,8 @@ class EmailAddressesForLoggedInUser(EmailAddressesForUserInfo):
 
 
 class EmailAddressesForUser(EmailAddressesForUserInfo):
+    '''An adaptor for :class:`Products.CustomUserFolder.CustomUser` to
+:class:`EmailAddressesForUserInfo`.'''
     def __init__(self, user):
         userInfo = IGSUserInfo(user)
         self.context = user

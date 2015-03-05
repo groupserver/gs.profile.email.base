@@ -44,7 +44,15 @@ class EmailUser(object):
         return retval
 
     def has_address(self, address):
-        'Returns ``True`` the user has the ``address``. *Case insensitive*.'
+        '''Test if the user has an email address
+
+:param str address: The address to check. **Case insensitive.**
+:returns: ``True`` the user has the ``address``.
+:rtype: bool
+
+Because email addresses are case insensitive (and you *will* get a mixture
+of addresses)
+'''
         l_address = address.lower()
         l_addresses = [a.lower() for a in self.get_addresses()]
         retval = l_address in l_addresses
