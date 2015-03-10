@@ -1,6 +1,14 @@
 Changelog
 =========
 
+3.0.2 (2015-03-10)
+------------------
+
+* Handling email addresses with ``+`` characters in them, partly
+  closing `Bug 4036`_
+
+.. _Bug 4036: https://redmine.iopen.net/issues/4036
+
 3.0.1 (2014-10-07)
 ------------------
 

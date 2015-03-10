@@ -7,12 +7,14 @@ Core email settings code
 
 :Author: `Michael JasonSmith`_
 :Contact: Michael JasonSmith <mpj17@onlinegroups.net>
-:Date: 2014-06-19
+:Date: 2015-03-10
 :Organization: `GroupServer.org`_
 :Copyright: This document is licensed under a
   `Creative Commons Attribution-Share Alike 4.0 International License`_
   by `OnlineGroups.net`_.
 
+..  _Creative Commons Attribution-Share Alike 4.0 International License:
+    http://creativecommons.org/licenses/by-sa/4.0/
 
 Introduction
 ============
@@ -170,20 +172,21 @@ all the email addresses from the database.
 Resources
 =========
 
-- Code repository: https://source.iopen.net/groupserver/gs.profile.email.base
-- Questions and comments to http://groupserver.org/groups/development
+- Code repository:
+  https://github.com/groupserver/gs.profile.email.base
+- Questions and comments to
+  http://groupserver.org/groups/development
 - Report bugs at https://redmine.iopen.net/projects/groupserver
 
 .. _GroupServer: http://groupserver.org/
 .. _GroupServer.org: http://groupserver.org/
 .. _OnlineGroups.Net: https://onlinegroups.net
 .. _Michael JasonSmith: http://groupserver.org/p/mpj17
-..  _Creative Commons Attribution-Share Alike 4.0 International License:
-    http://creativecommons.org/licenses/by-sa/4.0/
 
 .. [#settings] See
-               <https://source.iopen.net/groupserver/gs.profile.email.settings>
-.. [#verify] See <https://source.iopen.net/groupserver/gs.profile.email.verify>
+               <https://github.com/groupserver/gs.profile.email.settings>
+.. [#verify] See
+             <https://github.com/groupserver/gs.profile.email.verify>
 .. [#parseAddr] See
                <http://docs.python.org/2.7/library/email.util.html#email.utils.parseaddr>
 
