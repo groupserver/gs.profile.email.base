@@ -106,11 +106,35 @@ of addresses)
         return self.query.get_addresses(preferredOnly=False,
                                         verifiedOnly=True)
 
+    @property
+    def verified(self):
+        # --=mpj17=-- Deliberately not @Lazy, because they may change
+        retval = [a.lower() for a in self.get_verified_addresses()]
+        return retval
+
     def get_unverified_addresses(self):
         return self.query.get_unverified_addresses()
 
+    @property
+    def unverified(self):
+        # --=mpj17=-- Deliberately not @Lazy, because they may change
+        retval = [a.lower() for a in self.get_unverified_addresses()]
+        return retval
+
     def get_delivery_addresses(self):
         return self.query.get_addresses(preferredOnly=True)
+
+    @property
+    def preferred(self):
+        # --=mpj17=-- Deliberately not @Lazy, because they may change
+        retval = [a.lower() for a in self.get_delivery_addresses()]
+        return retval
+
+    @property
+    def extra(self):
+        # --=mpj17=-- Deliberately not @Lazy, because they may change
+        retval = list(set(self.verified) - set(self.preferred))
+        return retval
 
     def set_delivery(self, address):
         address = self._validateAndNormalizeEmail(address)
