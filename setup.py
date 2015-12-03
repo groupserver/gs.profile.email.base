@@ -18,6 +18,7 @@ import sys
 from setuptools import setup, find_packages
 from version import get_version
 
+name = 'gs.profile.email.base'
 version = get_version()
 
 with codecs.open('README.rst', encoding='utf-8') as f:
@@ -48,7 +49,7 @@ if (sys.version_info < (3, 4)):
     requires += ['setuptools', 'enum34']
 
 setup(
-    name='gs.profile.email.base',
+    name=name,
     version=version,
     description="Associate email addresses with a profile on GroupServer.",
     long_description=long_description,
@@ -68,10 +69,11 @@ setup(
     author_email='alice@onlinegroups.net',
     maintainer='Michael JasonSmith',
     maintainer_email='mpj17@onlinegroups.net',
-    url='https://github.com/groupserver/gs.profile.email.base/',
+    url='https://github.com/groupserver/{0}'.format(name),
     license='ZPL 2.1',
     packages=find_packages(exclude=['ez_setup']),
-    namespace_packages=['gs', 'gs.profile', 'gs.profile.email'],
+    namespace_packages=['.'.join(name.split('.')[:i])
+                        for i in range(1, len(name.split('.')))],
     include_package_data=True,
     zip_safe=False,
     install_requires=requires,
