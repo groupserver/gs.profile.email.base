@@ -48,12 +48,13 @@ def check_email(addr):
     return emailRE.match(r[1]) is not None
 
 
-BANNED_DOMAINS = ['dodgit.com', 'enterto.com', 'myspamless.com',
+BANNED_DOMAINS = [
+    'dodgit.com', 'enterto.com', 'myspamless.com',
     'e4ward.com', 'guerrillamail.biz', 'jetable.net', 'mailinator.com',
     'mintemail.com', 'vansoftcorp.com', 'plasticinbox.com', 'pookmail.com',
     'shieldedmail.net', 'sneakemail.com', 'spamgourmet.com', 'spambox.us',
     'spaml.com', 'temporaryinbox.com', 'mx0.wwwnew.eu', 'bodhi.lawlita.com',
-    'mail.htl22.at', 'zoemail.net', 'despam.it']
+    'mail.htl22.at', 'zoemail.net', 'despam.it', ]
 
 
 def address_exists(context, addr):
