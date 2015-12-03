@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.1.0 (2015-12-02)
+------------------
+
+* Adding the ``verified``, ``unverified``, ``preferred`` and
+  ``extra`` properties to the ``EmailUser`` class
+
 3.0.2 (2015-03-10)
 ------------------
 
