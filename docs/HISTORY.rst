@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.1.1 (2015-01-29)
+------------------
+
+* Adding a test-suite to the product metadata
+
 3.1.0 (2015-12-02)
 ------------------
 
@@ -84,3 +89,5 @@ Changelog
 ------------------
 
 * Initial version
+
+..  LocalWords:  Changelog
